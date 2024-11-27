@@ -1,0 +1,4 @@
+@base_url=https://changeable-cyan-dumpling.glitch.me/api/v1
+@resource=posts
+
+GET {{base_url}}/{{resource}}

@@ -1,0 +1,19 @@
+{
+  "name": "init-json-server",
+  "version": "1.0.0",
+  "description": "init Jsonserver",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon index.js",
+    "gen": "node gen.js",
+    "start": "node index.js"
+  },
+  "author": "VeMines",
+  "devDependencies": {
+    "@faker-js/faker": "^9.2.0",
+    "nodemon": "^3.1.7"
+  },
+  "dependencies": {
+    "@wll8/json-server": "^0.17.5-alpha.1"
+  }
+}
