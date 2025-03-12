@@ -1,4 +1,309 @@
-@base_url=https://changeable-cyan-dumpling.glitch.me/api/v1
-@resource=posts
+@baseURL = http://localhost:3000
 
-GET {{base_url}}/{{resource}}
+### --- Login ---
+
+# Login as admin
+POST {{baseURL}}/login
+Content-Type: application/json
+
+{
+  "username": "admin_user",
+  "password": "123456"
+}
+
+###  Capture the admin user ID
+@adminUserId = user1
+
+### Login as cashier
+POST {{baseURL}}/login
+Content-Type: application/json
+
+{
+  "username": "cashier_user",
+  "password": "123456"
+}
+
+### Capture the cashier user ID
+@cashierUserId = user2
+
+### Login as server
+POST {{baseURL}}/login
+Content-Type: application/json
+
+{
+  "username": "server_user",
+  "password": "123456"
+}
+
+###  Capture the server user ID
+@serverUserId = user3
+
+### --- Users (Admin Only) ---
+
+# Get all users (Admin)
+GET {{baseURL}}/users
+userid: {{adminUserId}}
+
+### Create a new user (Admin)
+POST {{baseURL}}/users
+Content-Type: application/json
+userid: {{adminUserId}}
+
+{
+  "username": "newuser",
+  "fullname": "New User",
+  "role": "serve",
+  "password": "123456",
+  "email": "new@example.com",
+  "phoneNumber": "555-1212",
+  "isActive": true
+}
+
+### Capture the newly created user's ID
+@newUserId = ysqjw3V
+
+### Get User By Id
+GET {{baseURL}}/users/{{newUserId}}
+userid: {{adminUserId}}
+
+### Update a user (Admin)
+PATCH {{baseURL}}/users/{{newUserId}}
+Content-Type: application/json
+userid: {{adminUserId}}
+
+{
+  "fullname": "Updated User Name"
+}
+
+### --- Categories ---
+
+### Get all categories (No auth needed for GET)
+GET {{baseURL}}/categories
+
+### Create a new category (Admin)
+POST {{baseURL}}/categories
+Content-Type: application/json
+userid: {{adminUserId}}
+
+{
+  "name": "New Category"
+}
+### Capture the new category ID
+@newCategoryId = 6XfoG3W
+
+### Update category (Admin)
+PATCH  {{baseURL}}/categories/{{newCategoryId}}
+Content-Type: application/json
+userid: {{adminUserId}}
+
+{
+    "name": "Update Category"
+}
+
+### --- SubCategories ---
+
+### Get all subcategories (No auth needed for GET)
+GET {{baseURL}}/subCategories
+
+### Create a new subcategory (Admin)
+POST {{baseURL}}/subCategories
+Content-Type: application/json
+userid: {{adminUserId}}
+
+{
+  "name": "New Subcategory",
+  "category": "{{newCategoryId}}",
+  "items": []
+}
+### Capture the new subcategory ID
+@newSubcategoryId = JOCCAWU
+
+### Update a subcategory (Admin)
+PATCH {{baseURL}}/subCategories/{{newSubcategoryId}}
+Content-Type: application/json
+userid: {{adminUserId}}
+
+{
+  "name": "Updated Subcategory Name"
+}
+
+### --- Menu Items ---
+
+### Get all menu items (No auth needed for GET)
+GET {{baseURL}}/menuItems
+
+### Create a new menu item (Admin)
+POST {{baseURL}}/menuItems
+Content-Type: application/json
+userid: {{adminUserId}}
+
+{
+  "name": "New menuItems",
+  "subCategory": "{{newSubcategoryId}}",
+  "price": 4.99,
+  "isAvailable": true
+}
+### Capture the new menu item ID
+@newMenuItemId = ZQefKb0
+
+### Update a menu item (Admin)
+PATCH {{baseURL}}/menuItems/{{newMenuItemId}}
+Content-Type: application/json
+userid: {{adminUserId}}
+
+{
+  "name": "Updated Menu Item Name",
+  "price": 5.99
+}
+
+
+### --- Tables (Admin Only) ---
+
+# Get all areas (No Auth)
+GET {{baseURL}}/areaTables
+### Get all tables (No Auth)
+GET {{baseURL}}/tables
+userid: {{adminUserId}}
+
+### Create a new area (Admin)
+POST {{baseURL}}/areaTables
+Content-Type: application/json
+userid: {{adminUserId}}
+
+{
+  "name": "New Area"
+}
+###  Capture the new area ID
+@newAreaId = ZSJU_lx
+
+### Create a new table (Admin)
+POST {{baseURL}}/tables
+Content-Type: application/json
+userid: {{adminUserId}}
+
+{
+  "tableName": "T25",
+  "status": "free",
+  "areaId": "{{newAreaId}}"
+}
+### Capture the new table ID
+@newTableId = U2d-ACm
+
+### Get all table (No Auth)
+GET {{baseURL}}/areas-with-tables
+userid: {{serverUserId}}
+
+### --- Orders ---
+# Get all orders (Server/Admin/Cashier)
+GET {{baseURL}}/orders
+userid: {{cashierUserId}} 
+
+### Create a new order (Server/Admin)
+POST {{baseURL}}/orders
+Content-Type: application/json
+userid: {{serverUserId}}
+
+{
+  "tableId": "{{newTableId}}",
+  "orderItems": [
+    {
+      "menuItemId": "{{newMenuItemId}}",
+      "quantity": 2,
+      "price": 4.50
+    }
+  ]
+}
+
+###  Capture the new order ID
+@newOrderId = 0e374f6eefd544b203ecedc9
+
+### get order by Id
+GET {{baseURL}}/orders/{{newOrderId}}
+userid: {{adminUserId}}
+
+### Mark order as served (Server)
+PATCH {{baseURL}}/orders/{{newOrderId}}
+Content-Type: application/json
+userid: {{serverUserId}}
+
+{
+  "orderStatus": "served"
+}
+### Mark order as served (Server/Admin)
+PATCH {{baseURL}}/orders/{{newOrderId}}
+Content-Type: application/json
+userid: {{cashierUserId}}
+
+{
+  "orderStatus": "completed",
+  "paymentMethod": "cash"
+}
+
+### --- Order History ---
+
+# Get order history (any authenticated user)
+GET {{baseURL}}/orderHistory
+userid: {{cashierUserId}}
+
+### Get Order history by Id
+GET {{baseURL}}/orderHistory/history-{{newOrderId}}
+userid: {{cashierUserId}}
+
+### --- Feedback ---
+
+# Get all feedback
+GET {{baseURL}}/feedback
+
+### Submit feedback for an order
+POST {{baseURL}}/feedback
+Content-Type: application/json
+
+{
+  "rating": 5,
+  "comment": "Great service!"
+}
+### Capture the feedback id
+@newFeedbackId = 8afef4edd6133bf3f7a8fe6a
+
+### --- Statistics ---
+
+# Get statistics (current month)
+GET {{baseURL}}/statistics
+userid: {{adminUserId}}
+
+### Get statistics today
+GET {{baseURL}}/statistics/today
+userid: {{adminUserId}}
+
+### Get statistics this week
+GET {{baseURL}}/statistics/this-week
+userid: {{adminUserId}}
+
+### Get all monthly statistics
+GET {{baseURL}}/aggregatedStatistics
+userid: {{adminUserId}}
+
+### Get all yearly statistics
+GET {{baseURL}}/statisticsYears
+userid: {{adminUserId}}
+
+### --- Delete Requests (Admin Only) ---
+### Delete a user (Admin)
+DELETE {{baseURL}}/users/{{newUserId}}
+userid: {{adminUserId}}
+
+### Delete a category (Admin)
+DELETE {{baseURL}}/categories/{{newCategoryId}}
+userid: {{adminUserId}}
+
+### Delete a subcategory (Admin)
+DELETE {{baseURL}}/subCategories/{{newSubcategoryId}}
+userid: {{adminUserId}}
+
+### Delete a menu item (Admin)
+DELETE {{baseURL}}/menuItems/{{newMenuItemId}}
+userid: {{adminUserId}}
+
+### Delete a table (Admin)
+DELETE {{baseURL}}/tables/{{newTableId}}
+userid: {{adminUserId}}
